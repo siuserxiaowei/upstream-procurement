@@ -20,7 +20,8 @@ export interface Channel {
   updated_at: string;
 }
 
-export type ChannelInput = Partial<Channel>;
+// id / created_at / updated_at are DB-assigned and must never be supplied by callers
+export type ChannelInput = Omit<Partial<Channel>, "id" | "created_at" | "updated_at">;
 
 const RISKS: Risk[] = ["低", "中", "高"];
 const STATUSES: Status[] = ["在售", "空仓", "停售"];
@@ -60,6 +61,7 @@ export interface Filters {
 }
 
 export function filterChannels(rows: Channel[], f: Filters): Channel[] {
+  // keyword matches channel name only (not category/note/contact) — intentional
   return rows.filter(
     (r) =>
       (f.category === "全部" || r.category === f.category) &&

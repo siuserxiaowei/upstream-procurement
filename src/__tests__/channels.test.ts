@@ -13,6 +13,9 @@ describe("sanitizeChannelInput", () => {
   it("rejects empty name", () => {
     expect(() => sanitizeChannelInput({ category: "GPT", name: " " })).toThrow();
   });
+  it("rejects empty category", () => {
+    expect(() => sanitizeChannelInput({ category: " ", name: "x" })).toThrow();
+  });
   it("rejects invalid risk", () => {
     expect(() =>
       sanitizeChannelInput({ category: "GPT", name: "x", risk: "x" as Risk }),
