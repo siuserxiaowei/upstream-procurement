@@ -1,4 +1,9 @@
+node_modules/
+dist/
 .env
 .env.local
-node_modules/
 .next/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.tmp/
