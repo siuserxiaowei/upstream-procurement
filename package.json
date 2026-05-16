@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "TMPDIR=$(pwd)/.tmp vitest run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
