@@ -20,7 +20,7 @@ export default function ChannelTable({
       <table className="w-full text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
-            {["分类", "渠道", "链接", "价格", "质保", "风险", "状态", "联系方式", "备注", "操作"].map(
+            {["分类", "渠道", "产品", "链接", "价格", "质保", "风险", "状态", "联系方式", "备注", "操作"].map(
               (h) => (
                 <th key={h} className="whitespace-nowrap px-3 py-2">{h}</th>
               ),
@@ -32,6 +32,7 @@ export default function ChannelTable({
             <tr key={r.id} className="border-t align-top">
               <td className="px-3 py-2">{r.category}</td>
               <td className="px-3 py-2 font-medium">{r.name}</td>
+              <td className="px-3 py-2 font-normal">{r.product ?? "—"}</td>
               <td className="px-3 py-2">
                 {r.url ? (
                   <a href={r.url} target="_blank" rel="noreferrer" className="text-blue-600 underline">

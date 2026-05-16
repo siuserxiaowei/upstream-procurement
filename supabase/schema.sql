@@ -2,6 +2,7 @@ create table if not exists channels (
   id uuid primary key default gen_random_uuid(),
   category text not null,
   name text not null,
+  product text,
   url text,
   manual_price text,
   warranty text,

@@ -7,6 +7,7 @@ export interface Channel {
   id: string;
   category: string;
   name: string;
+  product: string | null;
   url: string | null;
   manual_price: string | null;
   warranty: string | null;
@@ -42,6 +43,7 @@ export function sanitizeChannelInput(input: ChannelInput) {
   return {
     category,
     name,
+    product: s(input.product) || null,
     url: s(input.url) || null,
     manual_price: s(input.manual_price) || null,
     warranty: s(input.warranty) || null,
@@ -97,5 +99,31 @@ export async function updateChannel(id: string, input: ChannelInput): Promise<vo
 
 export async function deleteChannel(id: string): Promise<void> {
   const { error } = await supabase.from("channels").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+export interface ProductLine {
+  product?: string;
+  manual_price?: string;
+  warranty?: string;
+  risk?: Risk;
+  status?: Status;
+}
+
+export async function createChannelBatch(
+  base: ChannelInput,
+  lines: ProductLine[],
+): Promise<void> {
+  const rows = lines.map((ln) =>
+    sanitizeChannelInput({
+      ...base,
+      product: ln.product,
+      manual_price: ln.manual_price,
+      warranty: ln.warranty,
+      risk: ln.risk,
+      status: ln.status,
+    }),
+  );
+  const { error } = await supabase.from("channels").insert(rows);
   if (error) throw new Error(error.message);
 }
