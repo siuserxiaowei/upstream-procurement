@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [rows, setRows] = useState<Channel[]>([]);
   const [category, setCategory] = useState("全部");
   const [risk, setRisk] = useState("全部");
+  const [status, setStatus] = useState("全部");
   const [kw, setKw] = useState("");
   const [editing, setEditing] = useState<Channel | null>(null);
   const [creating, setCreating] = useState(false);
@@ -33,7 +34,7 @@ export default function Dashboard() {
     () => ["全部", ...Array.from(new Set(rows.map((r) => r.category)))],
     [rows],
   );
-  const filtered = filterChannels(rows, { category, risk, kw });
+  const filtered = filterChannels(rows, { category, risk, kw, status });
 
   async function remove(id: string) {
     if (!confirm("确认删除该渠道?")) return;
@@ -56,6 +57,9 @@ export default function Dashboard() {
         </select>
         <select value={risk} onChange={(e) => setRisk(e.target.value)} className="rounded border px-2 py-1 text-sm">
           {["全部", "低", "中", "高"].map((c) => <option key={c}>{c}</option>)}
+        </select>
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border px-2 py-1 text-sm">
+          {["全部", "在售", "空仓", "停售"].map((c) => <option key={c}>{c}</option>)}
         </select>
         <input
           value={kw}

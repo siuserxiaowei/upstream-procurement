@@ -60,6 +60,7 @@ export interface Filters {
   category: string;
   risk: string;
   kw: string;
+  status: string;
 }
 
 export function filterChannels(rows: Channel[], f: Filters): Channel[] {
@@ -68,7 +69,8 @@ export function filterChannels(rows: Channel[], f: Filters): Channel[] {
     (r) =>
       (f.category === "全部" || r.category === f.category) &&
       (f.risk === "全部" || r.risk === f.risk) &&
-      (f.kw === "" || r.name.toLowerCase().includes(f.kw.toLowerCase())),
+      (f.kw === "" || r.name.toLowerCase().includes(f.kw.toLowerCase())) &&
+      (f.status === "全部" || r.status === f.status),
   );
 }
 

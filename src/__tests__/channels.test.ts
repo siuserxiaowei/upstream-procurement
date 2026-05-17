@@ -24,18 +24,21 @@ describe("sanitizeChannelInput", () => {
 });
 
 const rows = [
-  { id: "1", category: "GPT", name: "jayron", risk: "低" },
-  { id: "2", category: "Claude", name: "gugu", risk: "高" },
+  { id: "1", category: "GPT", name: "jayron", risk: "低", status: "在售" },
+  { id: "2", category: "Claude", name: "gugu", risk: "高", status: "停售" },
 ] as Channel[];
 
 describe("filterChannels", () => {
   it("filters by category", () => {
-    expect(filterChannels(rows, { category: "GPT", risk: "全部", kw: "" })).toHaveLength(1);
+    expect(filterChannels(rows, { category: "GPT", risk: "全部", kw: "", status: "全部" })).toHaveLength(1);
   });
   it("filters by risk", () => {
-    expect(filterChannels(rows, { category: "全部", risk: "高", kw: "" })).toHaveLength(1);
+    expect(filterChannels(rows, { category: "全部", risk: "高", kw: "", status: "全部" })).toHaveLength(1);
   });
   it("filters by keyword (case-insensitive)", () => {
-    expect(filterChannels(rows, { category: "全部", risk: "全部", kw: "JAY" })).toHaveLength(1);
+    expect(filterChannels(rows, { category: "全部", risk: "全部", kw: "JAY", status: "全部" })).toHaveLength(1);
+  });
+  it("filters by status", () => {
+    expect(filterChannels(rows, { category: "全部", risk: "全部", kw: "", status: "停售" })).toHaveLength(1);
   });
 });
