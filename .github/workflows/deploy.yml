@@ -19,6 +19,7 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      - run: npm run verify
       - run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
