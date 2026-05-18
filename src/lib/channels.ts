@@ -138,3 +138,13 @@ export async function createChannelBatch(
   const { error } = await supabase.from("channels").insert(rows);
   if (error) throw new Error(error.message);
 }
+
+export type SanitizedChannel = ReturnType<typeof sanitizeChannelInput>;
+
+export async function createChannelsBulk(
+  rows: SanitizedChannel[],
+): Promise<void> {
+  if (rows.length === 0) return;
+  const { error } = await supabase.from("channels").insert(rows);
+  if (error) throw new Error(error.message);
+}
