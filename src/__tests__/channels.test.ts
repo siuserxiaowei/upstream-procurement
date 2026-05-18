@@ -79,3 +79,11 @@ describe("filterChannels 关键词匹配产品", () => {
     ).toHaveLength(1);
   });
 });
+
+import * as channelsMod from "../lib/channels";
+
+describe("createChannelsBulk 导出契约", () => {
+  it("导出 createChannelsBulk 函数", () => {
+    expect(typeof channelsMod.createChannelsBulk).toBe("function");
+  });
+});
