@@ -63,13 +63,16 @@ export interface Filters {
   status: string;
 }
 
+// keyword matches channel name OR product (not category/note/contact) — intentional
 export function filterChannels(rows: Channel[], f: Filters): Channel[] {
-  // keyword matches channel name only (not category/note/contact) — intentional
+  const kw = f.kw.toLowerCase();
   return rows.filter(
     (r) =>
       (f.category === "全部" || r.category === f.category) &&
       (f.risk === "全部" || r.risk === f.risk) &&
-      (f.kw === "" || r.name.toLowerCase().includes(f.kw.toLowerCase())) &&
+      (kw === "" ||
+        r.name.toLowerCase().includes(kw) ||
+        (r.product ?? "").toLowerCase().includes(kw)) &&
       (f.status === "全部" || r.status === f.status),
   );
 }
@@ -113,11 +116,8 @@ export interface ProductLine {
   status?: Status;
 }
 
-export async function createChannelBatch(
-  base: ChannelInput,
-  lines: ProductLine[],
-): Promise<void> {
-  const rows = lines.map((ln) =>
+export function buildBatchRows(base: ChannelInput, lines: ProductLine[]) {
+  return lines.map((ln) =>
     sanitizeChannelInput({
       ...base,
       category: ln.category,
@@ -128,6 +128,13 @@ export async function createChannelBatch(
       status: ln.status,
     }),
   );
+}
+
+export async function createChannelBatch(
+  base: ChannelInput,
+  lines: ProductLine[],
+): Promise<void> {
+  const rows = buildBatchRows(base, lines);
   const { error } = await supabase.from("channels").insert(rows);
   if (error) throw new Error(error.message);
 }
