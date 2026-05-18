@@ -21,7 +21,9 @@ const HEADER_MAP: Record<string, string> = {
 };
 
 function parseCsv(text: string): string[][] {
-  const t = text.replace(/^﻿/, "");
+  // Strip UTF-8 BOM (U+FEFF) written as an escape, not a literal char,
+  // so ESLint no-irregular-whitespace stays clean.
+  const t = text.replace(/^\uFEFF/, "");
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
