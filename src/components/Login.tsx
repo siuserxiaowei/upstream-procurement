@@ -5,15 +5,21 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setErr("");
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: pw,
     });
-    if (error) setErr("邮箱或密码错误");
+    if (error) {
+      setErr("邮箱或密码错误");
+      setLoading(false);
+    }
   }
 
   return (
@@ -36,7 +42,12 @@ export default function Login() {
           className="w-full rounded border px-3 py-2"
         />
         {err && <p className="text-sm text-red-600">{err}</p>}
-        <button className="w-full rounded bg-gray-900 py-2 text-white">登录</button>
+        <button
+          disabled={loading}
+          className="w-full rounded bg-gray-900 py-2 text-white disabled:opacity-50"
+        >
+          {loading ? "登录中…" : "登录"}
+        </button>
       </form>
     </main>
   );
