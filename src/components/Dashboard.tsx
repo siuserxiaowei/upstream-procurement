@@ -52,15 +52,24 @@ export default function Dashboard() {
         >
           + 新增渠道
         </button>
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded border px-2 py-1 text-sm">
-          {categories.map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <select value={risk} onChange={(e) => setRisk(e.target.value)} className="rounded border px-2 py-1 text-sm">
-          {["全部", "低", "中", "高"].map((c) => <option key={c}>{c}</option>)}
-        </select>
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border px-2 py-1 text-sm">
-          {["全部", "在售", "空仓", "停售"].map((c) => <option key={c}>{c}</option>)}
-        </select>
+        <label className="flex items-center gap-1 text-sm text-gray-500">
+          分类
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="rounded border px-2 py-1 text-sm text-gray-900">
+            {categories.map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1 text-sm text-gray-500">
+          风险
+          <select value={risk} onChange={(e) => setRisk(e.target.value)} className="rounded border px-2 py-1 text-sm text-gray-900">
+            {["全部", "低", "中", "高"].map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
+        <label className="flex items-center gap-1 text-sm text-gray-500">
+          状态
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded border px-2 py-1 text-sm text-gray-900">
+            {["全部", "在售", "空仓", "停售"].map((c) => <option key={c}>{c}</option>)}
+          </select>
+        </label>
         <input
           value={kw}
           onChange={(e) => setKw(e.target.value)}

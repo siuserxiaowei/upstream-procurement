@@ -105,6 +105,7 @@ export async function deleteChannel(id: string): Promise<void> {
 }
 
 export interface ProductLine {
+  category?: string;
   product?: string;
   manual_price?: string;
   warranty?: string;
@@ -119,6 +120,7 @@ export async function createChannelBatch(
   const rows = lines.map((ln) =>
     sanitizeChannelInput({
       ...base,
+      category: ln.category,
       product: ln.product,
       manual_price: ln.manual_price,
       warranty: ln.warranty,

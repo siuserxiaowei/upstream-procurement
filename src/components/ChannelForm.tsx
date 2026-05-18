@@ -8,7 +8,6 @@ import {
 
 // Channel-level fields (shared across all product rows on create)
 const BASE_FIELDS: { key: string; label: string }[] = [
-  { key: "category", label: "分类" },
   { key: "name", label: "渠道名" },
   { key: "url", label: "链接" },
   { key: "contact", label: "联系方式" },
@@ -32,6 +31,7 @@ const EDIT_FIELDS: { key: keyof Channel; label: string }[] = [
 ];
 
 const emptyLine = (): ProductLine => ({
+  category: "",
   product: "",
   manual_price: "",
   warranty: "",
@@ -72,6 +72,11 @@ export default function ChannelForm({
 
   function removeLine(idx: number) {
     setLines((prev) => prev.filter((_, i) => i !== idx));
+  }
+
+  function fillCategory(idx: number) {
+    const cat = lines[idx]?.category ?? "";
+    setLines((prev) => prev.map((ln) => ({ ...ln, category: cat })));
   }
 
   async function save() {
@@ -180,6 +185,25 @@ export default function ChannelForm({
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-2">
+                      <label className="text-sm">
+                        <span className="mb-1 flex items-center justify-between text-gray-600">
+                          <span>分类</span>
+                          {lines.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => fillCategory(idx)}
+                              className="text-xs text-blue-600 hover:text-blue-800"
+                            >
+                              应用到所有行
+                            </button>
+                          )}
+                        </span>
+                        <input
+                          value={ln.category ?? ""}
+                          onChange={(e) => setLine(idx, "category", e.target.value)}
+                          className="w-full rounded border px-2 py-1"
+                        />
+                      </label>
                       <label className="text-sm">
                         <span className="mb-1 block text-gray-600">产品</span>
                         <input
