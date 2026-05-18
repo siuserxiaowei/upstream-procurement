@@ -8,6 +8,7 @@ import {
 } from "../lib/channels";
 import ChannelTable from "./ChannelTable";
 import ChannelForm from "./ChannelForm";
+import ImportDialog from "./ImportDialog";
 
 const CATEGORY_PRESETS = ["GPT", "Claude", "Google", "Grok", "Suno", "其他"];
 
@@ -58,13 +59,18 @@ export default function Dashboard() {
   const [kw, setKw] = useState("");
   const [editing, setEditing] = useState<Channel | null>(null);
   const [creating, setCreating] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
   async function refresh() {
+    setLoading(true);
     try {
       setRows(await listChannels());
     } catch (e) {
       setErr(String(e));
+    } finally {
+      setLoading(false);
     }
   }
   useEffect(() => {
@@ -133,6 +139,12 @@ export default function Dashboard() {
           导出 CSV
         </button>
         <button
+          onClick={() => setImporting(true)}
+          className="rounded border px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+        >
+          导入 CSV
+        </button>
+        <button
           onClick={async () => { await supabase.auth.signOut(); }}
           className="ml-auto text-sm text-gray-500 underline"
         >
@@ -142,13 +154,26 @@ export default function Dashboard() {
 
       {err && <p className="text-sm text-red-600">{err}</p>}
 
-      <ChannelTable rows={filtered} onEdit={setEditing} onDelete={remove} />
+      {loading ? (
+        <p className="rounded-lg border bg-white p-10 text-center text-sm text-gray-500">
+          加载中…
+        </p>
+      ) : (
+        <ChannelTable rows={filtered} onEdit={setEditing} onDelete={remove} />
+      )}
 
       {(creating || editing) && (
         <ChannelForm
           channel={editing}
           onClose={() => { setCreating(false); setEditing(null); }}
           onSaved={() => { setCreating(false); setEditing(null); refresh(); }}
+        />
+      )}
+
+      {importing && (
+        <ImportDialog
+          onClose={() => setImporting(false)}
+          onImported={() => { setImporting(false); refresh(); }}
         />
       )}
     </main>
