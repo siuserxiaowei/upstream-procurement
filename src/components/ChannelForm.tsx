@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   createChannelBatch,
   updateChannel,
@@ -56,6 +56,14 @@ export default function ChannelForm({
   const [lines, setLines] = useState<ProductLine[]>([emptyLine()]);
   const [err, setErr] = useState("");
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && !saving) onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [saving, onClose]);
 
   function set(k: string, v: unknown) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -119,6 +127,7 @@ export default function ChannelForm({
                   value={(form[f.key] as string) ?? ""}
                   onChange={(e) => set(f.key, e.target.value)}
                   list={f.key === "category" ? "cat-presets" : undefined}
+                  autoFocus={f.key === "category"}
                   className="w-full rounded border px-2 py-1"
                 />
               </label>
@@ -158,8 +167,12 @@ export default function ChannelForm({
                   <input
                     value={(form[f.key] as string) ?? ""}
                     onChange={(e) => set(f.key, e.target.value)}
-                    className="w-full rounded border px-2 py-1"
+                    autoFocus={f.key === "name"}
+                    className={`w-full rounded border px-2 py-1 ${f.key === "name" && ((form[f.key] as string) ?? "").trim() === "" ? "border-red-400" : ""}`}
                   />
+                  {f.key === "name" && ((form[f.key] as string) ?? "").trim() === "" && (
+                    <span className="mt-1 block text-xs text-red-500">渠道名必填</span>
+                  )}
                 </label>
               ))}
             </div>
@@ -212,8 +225,11 @@ export default function ChannelForm({
                           value={ln.category ?? ""}
                           onChange={(e) => setLine(idx, "category", e.target.value)}
                           list="cat-presets"
-                          className="w-full rounded border px-2 py-1"
+                          className={`w-full rounded border px-2 py-1 ${(ln.category ?? "").trim() === "" ? "border-red-400" : ""}`}
                         />
+                        {(ln.category ?? "").trim() === "" && (
+                          <span className="mt-1 block text-xs text-red-500">分类必填</span>
+                        )}
                       </label>
                       <label className="text-sm">
                         <span className="mb-1 block text-gray-600">产品</span>
