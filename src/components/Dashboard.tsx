@@ -9,6 +9,43 @@ import {
 import ChannelTable from "./ChannelTable";
 import ChannelForm from "./ChannelForm";
 
+const CATEGORY_PRESETS = ["GPT", "Claude", "Google", "Grok", "Suno", "其他"];
+
+const CSV_COLS: { key: keyof Channel; label: string }[] = [
+  { key: "category", label: "分类" },
+  { key: "name", label: "渠道名" },
+  { key: "product", label: "产品" },
+  { key: "url", label: "链接" },
+  { key: "manual_price", label: "价格" },
+  { key: "warranty", label: "质保" },
+  { key: "risk", label: "风险" },
+  { key: "status", label: "状态" },
+  { key: "contact", label: "联系方式" },
+  { key: "card_format", label: "卡密格式" },
+  { key: "redeem_url", label: "兑换地址" },
+  { key: "note", label: "备注" },
+];
+
+function csvCell(v: unknown): string {
+  const s = v == null ? "" : String(v);
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function exportCsv(rows: Channel[]) {
+  const head = CSV_COLS.map((c) => c.label).join(",");
+  const body = rows
+    .map((r) => CSV_COLS.map((c) => csvCell(r[c.key])).join(","))
+    .join("\n");
+  const blob = new Blob(["﻿" + head + "\n" + body], {
+    type: "text/csv;charset=utf-8",
+  });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `渠道导出-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 export default function Dashboard() {
   const [rows, setRows] = useState<Channel[]>([]);
   const [category, setCategory] = useState("全部");
@@ -31,15 +68,24 @@ export default function Dashboard() {
   }, []);
 
   const categories = useMemo(
-    () => ["全部", ...Array.from(new Set(rows.map((r) => r.category)))],
+    () => [
+      "全部",
+      ...Array.from(
+        new Set([...CATEGORY_PRESETS, ...rows.map((r) => r.category)]),
+      ),
+    ],
     [rows],
   );
   const filtered = filterChannels(rows, { category, risk, kw, status });
 
   async function remove(id: string) {
     if (!confirm("确认删除该渠道?")) return;
-    await deleteChannel(id);
-    refresh();
+    try {
+      await deleteChannel(id);
+      refresh();
+    } catch (e) {
+      setErr(String(e));
+    }
   }
 
   return (
@@ -73,9 +119,15 @@ export default function Dashboard() {
         <input
           value={kw}
           onChange={(e) => setKw(e.target.value)}
-          placeholder="搜索渠道名"
+          placeholder="搜索渠道名/产品"
           className="rounded border px-2 py-1 text-sm"
         />
+        <button
+          onClick={() => exportCsv(filtered)}
+          className="rounded border px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+        >
+          导出 CSV
+        </button>
         <button
           onClick={async () => { await supabase.auth.signOut(); }}
           className="ml-auto text-sm text-gray-500 underline"
