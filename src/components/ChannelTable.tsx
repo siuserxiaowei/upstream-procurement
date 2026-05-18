@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { Channel } from "../lib/channels";
 
 const RISK_COLOR: Record<string, string> = {
@@ -6,6 +6,17 @@ const RISK_COLOR: Record<string, string> = {
   中: "bg-yellow-100 text-yellow-800",
   高: "bg-red-100 text-red-800",
 };
+
+const SORT_KEYS: Record<string, "name" | "product" | "manual_price" | "warranty" | "risk" | "status" | "contact"> = {
+  渠道: "name",
+  产品: "product",
+  价格: "manual_price",
+  质保: "warranty",
+  风险: "risk",
+  状态: "status",
+  联系方式: "contact",
+};
+const RISK_ORDER: Record<string, number> = { 低: 0, 中: 1, 高: 2 };
 
 const COLS = ["渠道", "产品", "链接", "价格", "质保", "风险", "状态", "联系方式", "备注", "操作"];
 
@@ -18,6 +29,19 @@ export default function ChannelTable({
   onEdit: (c: Channel) => void;
   onDelete: (id: string) => void;
 }) {
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<1 | -1>(1);
+
+  function toggleSort(col: string) {
+    const k = SORT_KEYS[col];
+    if (!k) return;
+    if (sortKey === k) setSortDir((d) => (d === 1 ? -1 : 1));
+    else {
+      setSortKey(k);
+      setSortDir(1);
+    }
+  }
+
   const groups = useMemo(() => {
     const m = new Map<string, Channel[]>();
     for (const r of rows) {
@@ -28,6 +52,32 @@ export default function ChannelTable({
     }
     return Array.from(m.entries());
   }, [rows]);
+
+  const sortedGroups = useMemo(() => {
+    if (!sortKey) return groups;
+    const cmp = (a: Channel, b: Channel) => {
+      let av: string | number;
+      let bv: string | number;
+      if (sortKey === "risk") {
+        av = RISK_ORDER[a.risk] ?? 99;
+        bv = RISK_ORDER[b.risk] ?? 99;
+      } else if (sortKey === "manual_price") {
+        const pa = parseFloat(String(a.manual_price ?? ""));
+        const pb = parseFloat(String(b.manual_price ?? ""));
+        av = isNaN(pa) ? Number.POSITIVE_INFINITY : pa;
+        bv = isNaN(pb) ? Number.POSITIVE_INFINITY : pb;
+      } else {
+        av = String((a as unknown as Record<string, unknown>)[sortKey] ?? "");
+        bv = String((b as unknown as Record<string, unknown>)[sortKey] ?? "");
+      }
+      if (av < bv) return -1 * sortDir;
+      if (av > bv) return 1 * sortDir;
+      return 0;
+    };
+    return groups.map(
+      ([cat, list]) => [cat, [...list].sort(cmp)] as [string, Channel[]],
+    );
+  }, [groups, sortKey, sortDir]);
 
   if (rows.length === 0) {
     return (
@@ -42,13 +92,24 @@ export default function ChannelTable({
       <table className="w-full text-sm">
         <thead className="bg-gray-100 text-left">
           <tr>
-            {COLS.map((h) => (
-              <th key={h} className="whitespace-nowrap px-3 py-2">{h}</th>
-            ))}
+            {COLS.map((h) => {
+              const sortable = h in SORT_KEYS;
+              const active = sortable && SORT_KEYS[h] === sortKey;
+              return (
+                <th
+                  key={h}
+                  onClick={() => toggleSort(h)}
+                  className={`whitespace-nowrap px-3 py-2 ${sortable ? "cursor-pointer select-none hover:bg-gray-200" : ""}`}
+                >
+                  {h}
+                  {active ? (sortDir === 1 ? " ▲" : " ▼") : ""}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>
-          {groups.map(([cat, list]) => (
+          {sortedGroups.map(([cat, list]) => (
             <GroupRows
               key={cat}
               cat={cat}
