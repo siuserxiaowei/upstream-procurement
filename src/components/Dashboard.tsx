@@ -27,7 +27,11 @@ const CSV_COLS: { key: keyof Channel; label: string }[] = [
 ];
 
 function csvCell(v: unknown): string {
-  const s = v == null ? "" : String(v);
+  let s = v == null ? "" : String(v);
+  // Neutralize spreadsheet formula injection: contact fields here are often
+  // "@tg_handle" / "=...". Prefix risky leading chars with ' so Excel/Sheets
+  // treat the cell as text, not a formula.
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

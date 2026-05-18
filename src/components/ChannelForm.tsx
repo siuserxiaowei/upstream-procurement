@@ -99,12 +99,12 @@ export default function ChannelForm({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6">
         <datalist id="cat-presets">
           {["GPT", "Claude", "Google", "Grok", "Suno", "其他"].map((c) => (
             <option key={c} value={c} />
           ))}
         </datalist>
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold">
           {channel ? "编辑渠道" : "新增渠道(可多产品)"}
         </h2>
