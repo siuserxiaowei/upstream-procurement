@@ -55,6 +55,7 @@ export default function ChannelForm({
   // Create mode: product lines
   const [lines, setLines] = useState<ProductLine[]>([emptyLine()]);
   const [err, setErr] = useState("");
+  const [saving, setSaving] = useState(false);
 
   function set(k: string, v: unknown) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -80,7 +81,9 @@ export default function ChannelForm({
   }
 
   async function save() {
+    if (saving) return;
     setErr("");
+    setSaving(true);
     try {
       if (channel) {
         await updateChannel(channel.id, form);
@@ -90,11 +93,17 @@ export default function ChannelForm({
       onSaved();
     } catch (e) {
       setErr(String(e));
+      setSaving(false);
     }
   }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-4">
+        <datalist id="cat-presets">
+          {["GPT", "Claude", "Google", "Grok", "Suno", "其他"].map((c) => (
+            <option key={c} value={c} />
+          ))}
+        </datalist>
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6">
         <h2 className="mb-4 text-lg font-semibold">
           {channel ? "编辑渠道" : "新增渠道(可多产品)"}
@@ -109,6 +118,7 @@ export default function ChannelForm({
                 <input
                   value={(form[f.key] as string) ?? ""}
                   onChange={(e) => set(f.key, e.target.value)}
+                  list={f.key === "category" ? "cat-presets" : undefined}
                   className="w-full rounded border px-2 py-1"
                 />
               </label>
@@ -201,6 +211,7 @@ export default function ChannelForm({
                         <input
                           value={ln.category ?? ""}
                           onChange={(e) => setLine(idx, "category", e.target.value)}
+                          list="cat-presets"
                           className="w-full rounded border px-2 py-1"
                         />
                       </label>
@@ -268,15 +279,17 @@ export default function ChannelForm({
         <div className="mt-5 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="rounded border px-4 py-1.5 text-sm"
+            disabled={saving}
+            className="rounded border px-4 py-1.5 text-sm disabled:opacity-50"
           >
             取消
           </button>
           <button
             onClick={save}
-            className="rounded bg-gray-900 px-4 py-1.5 text-sm text-white"
+            disabled={saving}
+            className="rounded bg-gray-900 px-4 py-1.5 text-sm text-white disabled:opacity-50"
           >
-            保存
+            {saving ? "保存中…" : "保存"}
           </button>
         </div>
       </div>
